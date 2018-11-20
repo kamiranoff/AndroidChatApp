@@ -1,5 +1,6 @@
 package com.nemeantalestudios.androidchatapp
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
@@ -37,12 +38,17 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun loginBtnNavClicked(view: View) {
-        print("Btn clicked")
-        print(view);
+        val loginIntent = Intent(this, LoginActivity::class.java)
+        startActivity(loginIntent)
     }
 
     fun addChannelButton(view: View) {
         print("addChannelButton clicked")
+    }
+
+    fun sendMessageBtnClicked(view: View) {
+        print("sendMessageBtnClicked clicked")
+
     }
 
 }

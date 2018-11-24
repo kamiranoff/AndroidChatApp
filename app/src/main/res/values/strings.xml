@@ -22,4 +22,5 @@
     <string name="tap_to_generate_user_avatar">Tap to generate user avatar</string>
     <string name="sign_up">Sign up</string>
     <string name="sign_up_here">Sign up here</string>
+    <string name="remove_background_color">remove background color ?</string>
 </resources>

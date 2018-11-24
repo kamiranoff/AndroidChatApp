@@ -42,7 +42,7 @@
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_marginTop="56dp"
             app:layout_constraintTop_toBottomOf="@+id/loginBtn"/>
     <Button
-            android:text="@string/button"
+            android:text="@string/sign_up_here"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:id="@+id/loginCreateUserBtn" app:layout_constraintEnd_toEndOf="parent"
@@ -50,5 +50,5 @@
             app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="32dp"
             android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/dontHaveAccountTxt"
             android:textColor="@color/colorThird" android:background="@color/colorSecondary"
-            android:onClick="loginCreateUserBtnClicked" tools:text="Sign up here"/>
+            android:onClick="loginCreateUserBtnClicked"/>
 </android.support.constraint.ConstraintLayout>

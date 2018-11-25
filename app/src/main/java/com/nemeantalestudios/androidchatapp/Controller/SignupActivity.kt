@@ -1,9 +1,12 @@
-package com.nemeantalestudios.androidchatapp
+package com.nemeantalestudios.androidchatapp.Controller
 
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
+import com.nemeantalestudios.androidchatapp.R
+import com.nemeantalestudios.androidchatapp.Service.AuthService
 import kotlinx.android.synthetic.main.activity_signup.*
 import java.util.*
 
@@ -53,7 +56,24 @@ class SignupActivity : AppCompatActivity() {
 
 
     fun onSignupUserClicked(view: View) {
+        val email = signupEmailField.text.toString()
+        val password = signupPasswordField.text.toString()
 
+        if (email == "" || password == "") {
+            Toast.makeText(this, "Please fill email and password fields", Toast.LENGTH_SHORT).show()
+        }
+
+        AuthService.registerUser(this, email, password) { registerSuccess ->
+            if (registerSuccess) {
+                println("Psylocke created")
+                AuthService.loginUser(this, email, password) { loginSuccess ->
+                    if(loginSuccess) {
+                        println("User logged in: ${AuthService.userEmail}")
+
+                    }
+                }
+            }
+        }
     }
 
 }

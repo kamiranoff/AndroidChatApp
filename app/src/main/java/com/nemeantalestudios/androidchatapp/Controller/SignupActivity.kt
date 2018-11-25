@@ -20,6 +20,7 @@ class SignupActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_signup)
+        signupUserSpinner.visibility = View.INVISIBLE
     }
 
     fun onChooseAvatarClicked(view: View) {
@@ -64,26 +65,59 @@ class SignupActivity : AppCompatActivity() {
         val password = signupPasswordField.text.toString()
 
 
-        if (email == "" || password == "") {
-            Toast.makeText(this, "Please fill email and password fields", Toast.LENGTH_SHORT).show()
+        if (email.isEmpty() || password.isEmpty() && username.isEmpty()) {
+            return Toast.makeText(this, "Please fill email and password fields", Toast.LENGTH_SHORT).show()
         }
 
+        enableProgressBar(true)
         AuthService.registerUser(this, email, password) { registerSuccess ->
             if (registerSuccess) {
-                println("Psylocke created")
                 AuthService.loginUser(this, email, password) { loginSuccess ->
-                    if(loginSuccess) {
+                    if (loginSuccess) {
                         println("User logged in: ${AuthService.userEmail}")
-                        UserDataService.createUser(this,username,email, avatarName, avatarColor) { createUserSuccess ->
-                            if(createUserSuccess) {
-                               finish()
+                        UserDataService.createUser(
+                            this,
+                            username,
+                            email,
+                            avatarName,
+                            avatarColor
+                        ) { createUserSuccess ->
+                            if (createUserSuccess) {
+                                enableProgressBar(false)
+                                finish()
+                            } else {
+                                errorToast("Sorry could not create your user")
                             }
                         }
 
+                    } else {
+                        errorToast("Sorry could not log in your user")
                     }
                 }
+            } else {
+                errorToast("Sorry could not signup your user")
             }
         }
+    }
+
+    fun errorToast(msg: String) {
+        Toast.makeText(this, msg, Toast.LENGTH_LONG).show()
+        enableProgressBar(false)
+    }
+
+
+    fun enableProgressBar(enable: Boolean) {
+        if (enable) {
+            signupUserSpinner.visibility = View.VISIBLE
+        } else {
+            signupUserSpinner.visibility = View.INVISIBLE
+
+        }
+
+        signupUserBtn.isEnabled = !enable
+        generateBgColorBtn.isEnabled = !enable
+        chooseAvatarImage.isEnabled = !enable
+
     }
 
 }

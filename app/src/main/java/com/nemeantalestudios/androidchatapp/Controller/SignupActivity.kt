@@ -1,5 +1,6 @@
 package com.nemeantalestudios.androidchatapp.Controller
 
+import android.content.Intent
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
@@ -7,12 +8,14 @@ import android.view.View
 import android.widget.Toast
 import com.nemeantalestudios.androidchatapp.R
 import com.nemeantalestudios.androidchatapp.Service.AuthService
+import com.nemeantalestudios.androidchatapp.Service.UserDataService
 import kotlinx.android.synthetic.main.activity_signup.*
 import java.util.*
 
 class SignupActivity : AppCompatActivity() {
 
     var avatarColor = "[0.5,0.5,0.5,1]"
+    var avatarName = "profileDefault"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -22,7 +25,7 @@ class SignupActivity : AppCompatActivity() {
     fun onChooseAvatarClicked(view: View) {
         val random = Random()
         val avatarNumber = random.nextInt(100) + 1
-        val avatarName = "heroes$avatarNumber"
+        avatarName = "heroes$avatarNumber"
         val resourceId = resources.getIdentifier(avatarName, "drawable", packageName)
         chooseAvatarImage.setImageResource(resourceId);
     }
@@ -56,8 +59,10 @@ class SignupActivity : AppCompatActivity() {
 
 
     fun onSignupUserClicked(view: View) {
+        val username = signupUsernameField.text.toString()
         val email = signupEmailField.text.toString()
         val password = signupPasswordField.text.toString()
+
 
         if (email == "" || password == "") {
             Toast.makeText(this, "Please fill email and password fields", Toast.LENGTH_SHORT).show()
@@ -69,6 +74,11 @@ class SignupActivity : AppCompatActivity() {
                 AuthService.loginUser(this, email, password) { loginSuccess ->
                     if(loginSuccess) {
                         println("User logged in: ${AuthService.userEmail}")
+                        UserDataService.createUser(this,username,email, avatarName, avatarColor) { createUserSuccess ->
+                            if(createUserSuccess) {
+                               finish()
+                            }
+                        }
 
                     }
                 }

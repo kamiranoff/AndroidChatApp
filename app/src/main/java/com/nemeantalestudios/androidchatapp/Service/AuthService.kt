@@ -64,7 +64,7 @@ object AuthService {
                     isLoggedIn = true
                     complete(true)
 
-                } catch (error:JSONException) {
+                } catch (error: JSONException) {
                     Log.e("JSON", "could not getString from response: ${error.localizedMessage}")
                     complete(false)
                 }
@@ -86,6 +86,12 @@ object AuthService {
         }
 
         Volley.newRequestQueue(context).add(loginRequest)
-
     }
+
+    fun clearUserData() {
+        authToken = ""
+        userEmail = ""
+        isLoggedIn = false
+    }
+
 }

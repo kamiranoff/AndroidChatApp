@@ -4,11 +4,15 @@ import android.content.Intent
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v4.content.LocalBroadcastManager
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import com.nemeantalestudios.androidchatapp.R
 import com.nemeantalestudios.androidchatapp.Service.AuthService
 import com.nemeantalestudios.androidchatapp.Service.UserDataService
+import com.nemeantalestudios.androidchatapp.Utilities.BROADCAST_USER_DATA_CHANGE
+import com.nemeantalestudios.androidchatapp.Utilities.Colors
 import kotlinx.android.synthetic.main.activity_signup.*
 import java.util.*
 
@@ -31,18 +35,6 @@ class SignupActivity : AppCompatActivity() {
         chooseAvatarImage.setImageResource(resourceId);
     }
 
-    fun convertToIOSColor(r: Int, g: Int, b: Int): String {
-
-
-        val savedR = r.toDouble() / 255
-        val savedG = g.toDouble() / 255
-        val savedB = b.toDouble() / 255
-
-        avatarColor = "[$savedR, $savedG, $savedB, 1]"
-
-        return avatarColor;
-
-    }
 
     fun onRemoveBgColor(view: View) {
         chooseAvatarImage.setBackgroundColor(0x00000000)
@@ -55,7 +47,7 @@ class SignupActivity : AppCompatActivity() {
         val b = random.nextInt(256)
 
         chooseAvatarImage.setBackgroundColor(Color.rgb(r, g, b))
-        convertToIOSColor(r, g, b);
+        Colors.formatColorFromAndroidtoIOSFormat(r, g, b);
     }
 
 
@@ -83,6 +75,9 @@ class SignupActivity : AppCompatActivity() {
                             avatarColor
                         ) { createUserSuccess ->
                             if (createUserSuccess) {
+
+                                val userDataChange = Intent(BROADCAST_USER_DATA_CHANGE)
+                                LocalBroadcastManager.getInstance(this).sendBroadcast(userDataChange)
                                 enableProgressBar(false)
                                 finish()
                             } else {
@@ -111,9 +106,7 @@ class SignupActivity : AppCompatActivity() {
             signupUserSpinner.visibility = View.VISIBLE
         } else {
             signupUserSpinner.visibility = View.INVISIBLE
-
         }
-
         signupUserBtn.isEnabled = !enable
         generateBgColorBtn.isEnabled = !enable
         chooseAvatarImage.isEnabled = !enable

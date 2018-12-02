@@ -31,7 +31,7 @@
             android:layout_width="35dp"
             android:layout_height="35dp" app:srcCompat="@drawable/ic_menu_send"
             android:id="@+id/sendMessageBtn"
-            android:tint="@color/colorSecondary" android:layout_marginBottom="8dp"
+            android:tint="@color/colorSecondary" android:layout_marginBottom="16dp"
             app:layout_constraintBottom_toBottomOf="parent" android:background="@android:color/transparent"
             android:layout_marginEnd="8dp" app:layout_constraintEnd_toEndOf="parent"
             android:contentDescription="@string/send_message" android:onClick="sendMessageBtnClicked"/>

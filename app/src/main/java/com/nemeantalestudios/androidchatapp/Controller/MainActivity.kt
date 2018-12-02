@@ -16,11 +16,15 @@ import com.nemeantalestudios.androidchatapp.Service.AuthService
 import com.nemeantalestudios.androidchatapp.Service.UserDataService
 import com.nemeantalestudios.androidchatapp.Utilities.BROADCAST_USER_DATA_CHANGE
 import com.nemeantalestudios.androidchatapp.Utilities.Colors
+import com.nemeantalestudios.androidchatapp.Utilities.SOCKET_URL
+import io.socket.client.IO
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity() {
+
+    val socket = IO.socket(SOCKET_URL)
 
     private val userDataChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -40,8 +44,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-        hideKeyboard()
-
 
 
         val toggle = ActionBarDrawerToggle(
@@ -60,6 +62,20 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
+    override fun onResume() {
+        super.onResume()
+        LocalBroadcastManager
+            .getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(BROADCAST_USER_DATA_CHANGE))
+        socket.connect()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        socket.disconnect()
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(userDataChangeReceiver)
+
+    }
 
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
@@ -89,11 +105,10 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
     }
 
     fun addChannelButton(view: View) {
-        if(AuthService.isLoggedIn) {
+        if (AuthService.isLoggedIn) {
             val builder = AlertDialog.Builder(this)
             val dialogView = layoutInflater.inflate(R.layout.add_channel_dialopg, null)
 
@@ -105,12 +120,10 @@ class MainActivity : AppCompatActivity() {
                     val channelName = nameTextField.text.toString()
                     val channelDescription = descriptionTextField.text.toString()
 
-                    // @TODO: create channel
-                    hideKeyboard()
+                    socket.emit("newChannel", channelName, channelDescription)
 
                 }
-                .setNegativeButton("Cancel") {dialog: DialogInterface?, which: Int ->
-                    hideKeyboard()
+                .setNegativeButton("Cancel") { dialog: DialogInterface?, which: Int ->
 
                 }
                 .show()
@@ -120,13 +133,15 @@ class MainActivity : AppCompatActivity() {
 
     fun sendMessageBtnClicked(view: View) {
         print("sendMessageBtnClicked clicked")
+        hideKeyboard()
+
 
     }
 
     fun hideKeyboard() {
         val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
 
-        if(inputManager.isAcceptingText) {
+        if (inputManager.isAcceptingText) {
             inputManager.hideSoftInputFromWindow(currentFocus.windowToken, 0)
         }
     }

@@ -24,7 +24,8 @@
             android:id="@+id/passwordLoginText" android:layout_marginTop="32dp"
             app:layout_constraintTop_toBottomOf="@+id/loginEmailText" android:layout_marginStart="32dp"
             app:layout_constraintStart_toStartOf="parent" android:layout_marginEnd="32dp"
-            app:layout_constraintEnd_toEndOf="parent" android:hint="@string/password" android:autofillHints="" tools:targetApi="o"/>
+            app:layout_constraintEnd_toEndOf="parent" android:hint="@string/password" android:autofillHints=""
+            tools:targetApi="o"/>
     <Button
             android:text="@string/login"
             android:layout_width="0dp"
@@ -38,7 +39,8 @@
             android:text="@string/don_t_have_an_account"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/dontHaveAccountTxt" app:layout_constraintStart_toStartOf="parent" android:layout_marginStart="8dp"
+            android:id="@+id/dontHaveAccountTxt" app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="8dp"
             app:layout_constraintEnd_toEndOf="parent" android:layout_marginEnd="8dp" android:layout_marginTop="56dp"
             app:layout_constraintTop_toBottomOf="@+id/loginBtn"/>
     <Button
@@ -51,4 +53,11 @@
             android:layout_marginTop="8dp" app:layout_constraintTop_toBottomOf="@+id/dontHaveAccountTxt"
             android:textColor="@color/colorThird" android:background="@color/colorSecondary"
             android:onClick="loginCreateUserBtnClicked"/>
+    <ProgressBar
+            style="?android:attr/progressBarStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/loginActivityProgressBar" android:layout_marginTop="8dp"
+            app:layout_constraintTop_toBottomOf="@+id/loginBtn" app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintHorizontal_bias="0.5" app:layout_constraintEnd_toEndOf="parent"/>
 </android.support.constraint.ConstraintLayout>

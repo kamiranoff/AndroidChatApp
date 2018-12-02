@@ -1,12 +1,13 @@
 package com.nemeantalestudios.androidchatapp.Controller
 
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.content.LocalBroadcastManager
-import android.util.Log
 import android.view.View
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.nemeantalestudios.androidchatapp.R
 import com.nemeantalestudios.androidchatapp.Service.AuthService
@@ -61,6 +62,7 @@ class SignupActivity : AppCompatActivity() {
             return Toast.makeText(this, "Please fill email and password fields", Toast.LENGTH_SHORT).show()
         }
 
+        hideKeyboard()
         enableProgressBar(true)
         AuthService.registerUser(this, email, password) { registerSuccess ->
             if (registerSuccess) {
@@ -111,6 +113,14 @@ class SignupActivity : AppCompatActivity() {
         generateBgColorBtn.isEnabled = !enable
         chooseAvatarImage.isEnabled = !enable
 
+    }
+
+    fun hideKeyboard() {
+        val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+
+        if(inputManager.isAcceptingText) {
+            inputManager.hideSoftInputFromWindow(currentFocus.windowToken, 0)
+        }
     }
 
 }

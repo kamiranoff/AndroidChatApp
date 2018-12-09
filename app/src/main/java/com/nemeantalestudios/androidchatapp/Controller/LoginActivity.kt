@@ -38,7 +38,7 @@ class LoginActivity : AppCompatActivity() {
 
         enableProgressBar(true)
 
-        AuthService.loginUser(this, email, password) { loginSuccess ->
+        AuthService.loginUser( email, password) { loginSuccess ->
             if (loginSuccess) {
                 UserDataService.findUserByMail(this) { findByEmailSuccess ->
                     if (findByEmailSuccess) {

@@ -8,6 +8,7 @@ import android.util.Log
 import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
+import com.nemeantalestudios.androidchatapp.Controller.App
 import com.nemeantalestudios.androidchatapp.Utilities.BROADCAST_USER_DATA_CHANGE
 import com.nemeantalestudios.androidchatapp.Utilities.URL_CREATE_USER
 import com.nemeantalestudios.androidchatapp.Utilities.URL_GET_USER_BY_EMAIL
@@ -24,7 +25,6 @@ object UserDataService {
     var name = ""
 
     fun createUser(
-        context: Context,
         name: String,
         email: String,
         avatarName: String,
@@ -75,19 +75,19 @@ object UserDataService {
 
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
-                headers.put("Authorization", "Bearer ${AuthService.authToken}")
+                headers.put("Authorization", "Bearer ${App.sharedPreferences.authToken}")
                 return headers
             }
         }
 
-        Volley.newRequestQueue(context).add(createRequest)
+        App.sharedPreferences.requestQueue.add(createRequest)
     }
 
 
     fun findUserByMail(context: Context, complete: (Boolean) -> Unit) {
         val findUserRequest = object : JsonObjectRequest(
             Method.GET,
-            "$URL_GET_USER_BY_EMAIL/${AuthService.userEmail}",
+            "$URL_GET_USER_BY_EMAIL/${App.sharedPreferences.userEmail}",
             null,
             Response.Listener { response ->
                 try {
@@ -117,12 +117,12 @@ object UserDataService {
 
             override fun getHeaders(): MutableMap<String, String> {
                 val headers = HashMap<String, String>()
-                headers.put("Authorization", "Bearer ${AuthService.authToken}")
+                headers.put("Authorization", "Bearer ${App.sharedPreferences.authToken}")
                 return headers
             }
         }
 
-        Volley.newRequestQueue(context).add(findUserRequest)
+        App.sharedPreferences.requestQueue.add(findUserRequest)
 
     }
 

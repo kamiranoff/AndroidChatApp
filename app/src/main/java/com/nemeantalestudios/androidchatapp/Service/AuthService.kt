@@ -6,6 +6,7 @@ import com.android.volley.Response
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
+import com.nemeantalestudios.androidchatapp.Controller.App
 import com.nemeantalestudios.androidchatapp.Utilities.URL_LOGIN
 import com.nemeantalestudios.androidchatapp.Utilities.URL_REGISTER
 import org.json.JSONException
@@ -13,11 +14,7 @@ import org.json.JSONObject
 
 object AuthService {
 
-    var userEmail = ""
-    var authToken = ""
-    var isLoggedIn = false
-
-    fun registerUser(context: Context, email: String, password: String, complete: (Boolean) -> Unit) {
+    fun registerUser(email: String, password: String, complete: (Boolean) -> Unit) {
 
         val jsonBody = JSONObject()
         jsonBody.put("email", email)
@@ -42,12 +39,12 @@ object AuthService {
             }
         }
 
-        Volley.newRequestQueue(context).add(registerRequest)
+        App.sharedPreferences.requestQueue.add(registerRequest)
 
     }
 
 
-    fun loginUser(context: Context, email: String, password: String, complete: (Boolean) -> Unit) {
+    fun loginUser(email: String, password: String, complete: (Boolean) -> Unit) {
 
         val jsonBody = JSONObject()
         jsonBody.put("email", email)
@@ -59,9 +56,9 @@ object AuthService {
             Response.Listener { response ->
 
                 try {
-                    authToken = response.getString("token")
-                    userEmail = response.getString("user")
-                    isLoggedIn = true
+                    App.sharedPreferences.authToken = response.getString("token")
+                    App.sharedPreferences.userEmail = response.getString("user")
+                    App.sharedPreferences.isLoggedIn = true
                     complete(true)
 
                 } catch (error: JSONException) {
@@ -85,13 +82,13 @@ object AuthService {
             }
         }
 
-        Volley.newRequestQueue(context).add(loginRequest)
+        App.sharedPreferences.requestQueue.add(loginRequest)
     }
 
     fun clearUserData() {
-        authToken = ""
-        userEmail = ""
-        isLoggedIn = false
+        App.sharedPreferences.authToken = ""
+        App.sharedPreferences.userEmail = ""
+        App.sharedPreferences.isLoggedIn = false
     }
 
 }

@@ -64,13 +64,12 @@ class SignupActivity : AppCompatActivity() {
 
         hideKeyboard()
         enableProgressBar(true)
-        AuthService.registerUser(this, email, password) { registerSuccess ->
+        AuthService.registerUser(email, password) { registerSuccess ->
             if (registerSuccess) {
-                AuthService.loginUser(this, email, password) { loginSuccess ->
+                AuthService.loginUser(email, password) { loginSuccess ->
                     if (loginSuccess) {
-                        println("User logged in: ${AuthService.userEmail}")
+                        println("User logged in: ${App.sharedPreferences.isLoggedIn}")
                         UserDataService.createUser(
-                            this,
                             username,
                             email,
                             avatarName,

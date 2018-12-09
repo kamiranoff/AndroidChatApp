@@ -7,6 +7,7 @@ const val URL_LOGIN = "${BASE_URL}account/login"
 const val URL_CREATE_USER = "${BASE_URL}user/add"
 const val URL_GET_USER_BY_EMAIL = "${BASE_URL}user/byEmail"
 const val URL_GET_CHANNELS = "${BASE_URL}channel"
+const val URL_GET_MESSAGES_BY_CHANNEL_ID = "${BASE_URL}message/byChannel/"
 
 
 // Broadcast Constants

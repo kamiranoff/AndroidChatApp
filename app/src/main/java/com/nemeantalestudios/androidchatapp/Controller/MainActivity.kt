@@ -13,6 +13,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.EditText
 import com.nemeantalestudios.androidchatapp.Model.Channel
+import com.nemeantalestudios.androidchatapp.Model.Message
 import com.nemeantalestudios.androidchatapp.R
 import com.nemeantalestudios.androidchatapp.Service.AuthService
 import com.nemeantalestudios.androidchatapp.Service.MessageService
@@ -33,36 +34,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var channelAdapter: ArrayAdapter<Channel>
     var selectedChannel: Channel? = null
 
-    private fun setupAdapters() {
-        channelAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1 , MessageService.channels)
-        channel_list.adapter = channelAdapter
-    }
-
-
-    private val userDataChangeReceiver = object : BroadcastReceiver() {
-        override fun onReceive(context: Context, intent: Intent?) {
-            if (App.sharedPreferences.isLoggedIn) {
-                navHeaderUsername.text = UserDataService.name
-                navHeaderEmail.text = UserDataService.email
-                val resourceId = resources.getIdentifier(UserDataService.avatarName, "drawable", packageName)
-                navHeaderAvatar.setImageResource(resourceId)
-                navHeaderAvatar.setBackgroundColor(Colors.formatColorFromIOStoAndroidFormat(UserDataService.avatarColor))
-                loginBtnNavHeader.setText(R.string.logout)
-                MessageService.getChannels { complete ->
-                    if (complete) {
-                        if(MessageService.channels.count() > 0) {
-                            selectedChannel = MessageService.channels[0]
-                            channelAdapter.notifyDataSetChanged()
-                            updateWithChannel()
-
-                        }
-                    }
-                }
-            }
-
-        }
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -70,6 +41,7 @@ class MainActivity : AppCompatActivity() {
 
         socket.connect()
         socket.on("channelCreated", onNewChannel)
+        socket.on("messageCreated", onNewMessage)
 
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar,
@@ -81,11 +53,11 @@ class MainActivity : AppCompatActivity() {
         setupAdapters()
 
 
-        if(App.sharedPreferences.isLoggedIn) {
+        if (App.sharedPreferences.isLoggedIn) {
             UserDataService.findUserByMail(this) {}
         }
 
-        channel_list.setOnItemClickListener { _, _, i, _->
+        channel_list.setOnItemClickListener { _, _, i, _ ->
             selectedChannel = MessageService.channels[i]
             drawer_layout.closeDrawer(GravityCompat.START)
             updateWithChannel()
@@ -115,6 +87,37 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun setupAdapters() {
+        channelAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, MessageService.channels)
+        channel_list.adapter = channelAdapter
+    }
+
+
+    private val userDataChangeReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent?) {
+            if (App.sharedPreferences.isLoggedIn) {
+                navHeaderUsername.text = UserDataService.name
+                navHeaderEmail.text = UserDataService.email
+                val resourceId = resources.getIdentifier(UserDataService.avatarName, "drawable", packageName)
+                navHeaderAvatar.setImageResource(resourceId)
+                navHeaderAvatar.setBackgroundColor(Colors.formatColorFromIOStoAndroidFormat(UserDataService.avatarColor))
+                loginBtnNavHeader.setText(R.string.logout)
+                MessageService.getChannels { complete ->
+                    if (complete) {
+                        if (MessageService.channels.count() > 0) {
+                            selectedChannel = MessageService.channels[0]
+                            channelAdapter.notifyDataSetChanged()
+                            updateWithChannel()
+
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
+
     fun resetLogoutUI() {
         navHeaderUsername.setText(R.string.login)
         navHeaderEmail.text = ""
@@ -127,6 +130,7 @@ class MainActivity : AppCompatActivity() {
         if (App.sharedPreferences.isLoggedIn) {
             UserDataService.clearUserData()
             AuthService.clearUserData()
+            MessageService.clearAll()
             resetLogoutUI()
 
         } else {
@@ -163,24 +167,74 @@ class MainActivity : AppCompatActivity() {
 
     fun updateWithChannel() {
         mainChannelName.text = "${selectedChannel?.name}"
+
+        if(selectedChannel != null) {
+            MessageService.getMessagesByChannel(selectedChannel!!.id) {
+                complete ->
+                if(complete) {
+                    for (message in MessageService.messages) {
+                        println(message.text)
+                    }
+                }
+            }
+        }
     }
 
     private val onNewChannel = Emitter.Listener { args ->
-        runOnUiThread {
-            val channelName = args[0] as String
-            val channelDescription = args[1] as String
-            val channelId = args[2] as String
+        if(App.sharedPreferences.isLoggedIn) {
+            runOnUiThread {
+                val channelName = args[0] as String
+                val channelDescription = args[1] as String
+                val channelId = args[2] as String
 
 
-            val channel = Channel(channelName, channelDescription, channelId)
-            MessageService.channels.add(channel)
-            channelAdapter.notifyDataSetChanged()
+                val channel = Channel(channelName, channelDescription, channelId)
+                MessageService.channels.add(channel)
+                channelAdapter.notifyDataSetChanged()
+            }
         }
+
+    }
+
+    private val onNewMessage = Emitter.Listener { args ->
+
+        if(App.sharedPreferences.isLoggedIn && selectedChannel != null) {
+            runOnUiThread {
+                val channelId = args[2] as String
+                if(channelId == selectedChannel!!.id) {
+                    val msgBody = args[0] as String
+                    val username = args[3] as String
+                    val avatar = args[4] as String
+                    val avatarColor = args[5] as String
+                    val messageId = args[6] as String
+                    val timestamp = args[7] as String
+
+                    val message = Message(msgBody, username, channelId, avatar, avatarColor, messageId, timestamp)
+                    MessageService.messages.add(message)
+                }
+            }
+        }
+
     }
 
     fun sendMessageBtnClicked(view: View) {
         print("sendMessageBtnClicked clicked")
-        hideKeyboard()
+        if (App.sharedPreferences.isLoggedIn && sendMessageText.text.isNotEmpty() && selectedChannel !== null) {
+            val userId = UserDataService.id
+            val channelId = selectedChannel!!.id
+
+            socket.emit(
+                "newMessage",
+                sendMessageText.text.toString(),
+                userId,
+                channelId,
+                UserDataService.name,
+                UserDataService.avatarName,
+                UserDataService.avatarColor
+            )
+            sendMessageText.text.clear()
+            hideKeyboard()
+        }
     }
 
     fun hideKeyboard() {

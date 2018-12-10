@@ -47,6 +47,9 @@ class MainActivity : AppCompatActivity() {
         socket.on("channelCreated", onNewChannel)
         socket.on("messageCreated", onNewMessage)
 
+        LocalBroadcastManager
+            .getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(BROADCAST_USER_DATA_CHANGE))
+
         val toggle = ActionBarDrawerToggle(
             this, drawer_layout, toolbar,
             R.string.navigation_drawer_open,
@@ -68,12 +71,6 @@ class MainActivity : AppCompatActivity() {
 
         }
 
-    }
-
-    override fun onResume() {
-        super.onResume()
-        LocalBroadcastManager
-            .getInstance(this).registerReceiver(userDataChangeReceiver, IntentFilter(BROADCAST_USER_DATA_CHANGE))
     }
 
     override fun onDestroy() {
@@ -135,6 +132,7 @@ class MainActivity : AppCompatActivity() {
         loginBtnNavHeader.setText(R.string.login)
         channelAdapter.notifyDataSetChanged()
         messageAdapter.notifyDataSetChanged()
+        mainChannelName.text = getString(R.string.please_log_in)
     }
 
     fun loginBtnNavClicked(view: View) {

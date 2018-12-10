@@ -1,4 +1,12 @@
 package com.nemeantalestudios.androidchatapp.Model
 
 
-class Message(val text: String, val username: String, val channelId: String, avatar: String, avatarColor: String, id: String, timestamp: String)
+class Message(
+    val messageBody: String,
+    val username: String,
+    val channelId: String,
+    val avatar: String,
+    val avatarColor: String,
+    val id: String,
+    val timestamp: String
+)

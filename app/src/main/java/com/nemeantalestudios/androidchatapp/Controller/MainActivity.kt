@@ -8,10 +8,13 @@ import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutCompat
+import android.support.v7.widget.LinearLayoutManager
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.EditText
+import com.nemeantalestudios.androidchatapp.Adapter.MessageAdapter
 import com.nemeantalestudios.androidchatapp.Model.Channel
 import com.nemeantalestudios.androidchatapp.Model.Message
 import com.nemeantalestudios.androidchatapp.R
@@ -32,6 +35,7 @@ class MainActivity : AppCompatActivity() {
 
     val socket = IO.socket(SOCKET_URL)
     lateinit var channelAdapter: ArrayAdapter<Channel>
+    lateinit var messageAdapter: MessageAdapter
     var selectedChannel: Channel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,6 +94,11 @@ class MainActivity : AppCompatActivity() {
     private fun setupAdapters() {
         channelAdapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, MessageService.channels)
         channel_list.adapter = channelAdapter
+
+        messageAdapter = MessageAdapter(this, MessageService.messages)
+        val layoutManager = LinearLayoutManager(this)
+        messageListView.adapter = messageAdapter
+        messageListView.layoutManager = layoutManager
     }
 
 
@@ -124,6 +133,8 @@ class MainActivity : AppCompatActivity() {
         navHeaderAvatar.setImageResource(R.drawable.profiledefault)
         navHeaderAvatar.setBackgroundColor(Color.TRANSPARENT)
         loginBtnNavHeader.setText(R.string.login)
+        channelAdapter.notifyDataSetChanged()
+        messageAdapter.notifyDataSetChanged()
     }
 
     fun loginBtnNavClicked(view: View) {
@@ -172,8 +183,9 @@ class MainActivity : AppCompatActivity() {
             MessageService.getMessagesByChannel(selectedChannel!!.id) {
                 complete ->
                 if(complete) {
-                    for (message in MessageService.messages) {
-                        println(message.text)
+                   messageAdapter.notifyDataSetChanged()
+                    if(messageAdapter.itemCount > 0) {
+                        messageListView.smoothScrollToPosition(messageAdapter.itemCount - 1)
                     }
                 }
             }
@@ -211,6 +223,8 @@ class MainActivity : AppCompatActivity() {
 
                     val message = Message(msgBody, username, channelId, avatar, avatarColor, messageId, timestamp)
                     MessageService.messages.add(message)
+                    messageAdapter.notifyDataSetChanged()
+                    messageListView.smoothScrollToPosition(messageAdapter.itemCount - 1)
                 }
             }
         }
